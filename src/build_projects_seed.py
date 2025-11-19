@@ -37,7 +37,8 @@ def run_git(args: List[str], cwd: Path | None = None) -> None:
         subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
     except subprocess.CalledProcessError as e:
         pretty = " ".join(shlex.quote(x) for x in args)
-        sys.exit(f"git command failed: git {pretty}\n{e}")
+        print(f"git command failed: git {pretty}\n{e}", file=sys.stderr)
+        sys.exit(1)
 
 
 def find_repos_json(dir_path: Path) -> Path:
