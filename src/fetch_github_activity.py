@@ -281,6 +281,7 @@ def _post(payload, max_retries=6):
                     backoff = min(backoff * 2, 60)
                     continue
                 except Exception:
+                    # If parsing the rate limit reset header fails, skip sleeping and continue retrying.
                     pass
 
             # Retry on server hiccups (e.g., 502/503/504)
