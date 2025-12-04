@@ -433,7 +433,6 @@ def build_portfolio_overview_prompt(
         # Pre-extract first candidate per bucket per project
         by_project = []
         for p in sorted(ps, key=lambda x: (x.get("project_id") or "")):
-            pid = p.get("project_id")
             ex = p.get("recent_examples") or {}
             cand = None
             for b in buckets:

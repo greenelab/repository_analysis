@@ -3,11 +3,10 @@
 Generate per-project executive summaries by calling an LLM.
 """
 
-import os, json, glob, argparse, time
+import os, json, glob, argparse, time, re
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from openai import OpenAI
-import os, re, glob
 
 # -------- Environment & client setup --------
 load_dotenv()
@@ -38,12 +37,14 @@ _ACTIVITY_RE = re.compile(
     r"^##\s*Recent Developments.*?\n(.*?)(?:\n##\s+|\Z)", re.DOTALL | re.MULTILINE
 )
 
+
 # -------- Small helpers --------
 def _read_repo_activity_from_md(project_id: str, owner: str, repo: str) -> str | None:
     path = os.path.join(REPORTS_DIR, f"{project_id}__{owner}__{repo}.md")
     if not os.path.exists(path):
         return None
-    text = open(path, "r", encoding="utf-8").read()
+    with open(path, "r", encoding="utf-8") as f:
+        text = f.read()
     m = _ACTIVITY_RE.search(text)
     if not m:
         return None
@@ -84,6 +85,7 @@ def build_project_goal_corpus_from_repo_mds(
     """
     pid = str(project.get("project_id") or "").strip()
     parts = []
+
     # small fairness cap per repo; keeps the corpus balanced
     def _cap_for(n, soft_total=8000, min_cap=250, max_cap=900):
         return max(min_cap, min(max_cap, soft_total // max(1, n)))
@@ -161,7 +163,6 @@ def build_project_activity_corpus_from_repo_mds(
 
 
 def call_llm(prompt: str, model: str, max_retries: int = 4) -> str:
-    last = None
     for attempt in range(1, max_retries + 1):
         try:
             resp = client.chat.completions.create(
@@ -292,7 +293,7 @@ STRICT RULES
 - If ACTIVITY_PRESENT=no, under “Recent Developments” write exactly: **No changes in {window_label}**. Do not write ACTIVITY_PRESENT=yes or no.
 - Use inline links inside the prose only when it adds to the narrative or when the example is truly informative (e.g., "...includes [work to fix X](link to where X is fixed)). 
 - Inline links to commit/change/issue are only present when it's very representative of the point you are trying to make.        
-- Avoid letting any single repository account for most of the narratie.
+- Avoid letting any single repository account for most of the narrative.
 - Balance coverage across repositories; ensure all repositories are represented where possible.
 - Do not under any circumstance name any pull request, commit or issue by name (i.e., pull request 1, commit 70bcd7e6, etc.)
 - Do not let a single repository dominate the narrative; integrate themes spanning multiple repos.

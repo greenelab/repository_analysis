@@ -39,6 +39,7 @@ os.makedirs(REPORTS_DIR, exist_ok=True)
 SEED_CSV = "data/projects_seed.csv"
 RAW_DIR = "data/raw/github"
 
+
 # ---------- LLM helper with simple retries ----------
 def _footer():
     dmy = datetime.now(timezone.utc).strftime("%d/%m/%Y")
@@ -279,47 +280,41 @@ def build_repo_prompt(project_id, project_name, owner, repo, ctx, tables, window
     synthesized repo summary with headings. No bullet lists or dated timelines.
     """
 
-    def ex(df, cols):
-        if df is None or df.empty:
-            return []
-        out = []
-        for _, r in df.iterrows():
-            parts = []
-            for c in cols:
-                v = r.get(c)
-                if v:
-                    parts.append(str(v))
-            if parts:
-                out.append(" — ".join(parts))
-        return out
-
     commits = tables.get("commits", pd.DataFrame())
     issues = tables.get("issues", pd.DataFrame())
     prs = tables.get("pull_requests", pd.DataFrame())
     rels = tables.get("releases", pd.DataFrame())
 
     c_sub = _sorted_desc(
-        commits[(commits.get("owner") == owner) & (commits.get("repo") == repo)]
-        if isinstance(commits, pd.DataFrame) and not commits.empty
-        else pd.DataFrame(),
+        (
+            commits[(commits.get("owner") == owner) & (commits.get("repo") == repo)]
+            if isinstance(commits, pd.DataFrame) and not commits.empty
+            else pd.DataFrame()
+        ),
         "committed_at",
     )
     i_sub = _sorted_desc(
-        issues[(issues.get("owner") == owner) & (issues.get("repo") == repo)]
-        if isinstance(issues, pd.DataFrame) and not issues.empty
-        else pd.DataFrame(),
+        (
+            issues[(issues.get("owner") == owner) & (issues.get("repo") == repo)]
+            if isinstance(issues, pd.DataFrame) and not issues.empty
+            else pd.DataFrame()
+        ),
         "created_at",
     )
     pr_sub = _sorted_desc(
-        prs[(prs.get("owner") == owner) & (prs.get("repo") == repo)]
-        if isinstance(prs, pd.DataFrame) and not prs.empty
-        else pd.DataFrame(),
+        (
+            prs[(prs.get("owner") == owner) & (prs.get("repo") == repo)]
+            if isinstance(prs, pd.DataFrame) and not prs.empty
+            else pd.DataFrame()
+        ),
         "created_at",
     )
     r_sub = _sorted_desc(
-        rels[(rels.get("owner") == owner) & (rels.get("repo") == repo)]
-        if isinstance(rels, pd.DataFrame) and not rels.empty
-        else pd.DataFrame(),
+        (
+            rels[(rels.get("owner") == owner) & (rels.get("repo") == repo)]
+            if isinstance(rels, pd.DataFrame) and not rels.empty
+            else pd.DataFrame()
+        ),
         "published_at",
     )
 
@@ -351,12 +346,12 @@ def build_repo_prompt(project_id, project_name, owner, repo, ctx, tables, window
 You are writing an **executive summary** for ONE repository.
 
 STRICT RULES
-- Write succint language and do not repeat yourself.
+- Write succinct language and do not repeat yourself.
 - Keep total under ~250 words.
 - Use ONLY the facts below (GOAL SOURCE, EVIDENCE, IDENTITY SIGNALS). No outside knowledge.
 - Only inline link a commit/change/issue when it's very representative of the point you are trying to make or when it adds to the narrative.
 - If ACTIVITY_PRESENT=no, or there is no recent activity, under “Recent Developments” write EXACTLY: **No changes in {window_label}**. Do not write ACTIVITY_PRESENT=yes or no.
-- Support claims with inline Markdown links **only** within the sentence/statement within the narrative and prose. The parapgraphs must flow.
+- Support claims with inline Markdown links **only** within the sentence/statement within the narrative and prose. The paragraphs must flow.
 - No dated bullet lists or lists; synthesize into concise paragraphs.
 - Do not write bracketed anchors like “[commit …]”, “[PR …]”, or “[issue …]” under any circumstance.
 - Do not name any pull request, commit or issue by name (i.e., pull request 1, commit 70bcd7e6, etc.) under any circumstance.
@@ -427,20 +422,20 @@ def main():
     parser.add_argument(
         "--model-high",
         default=DEFAULT_MODEL,
-        help="OpenAI model for higher analysis (default gpt-5-nano)",
+        help="OpenAI model for higher analysis (default: value of --model/DEFAULT_MODEL)"
     )
     parser.add_argument(
         "--model-low",
         default=DEFAULT_MODEL,
-        help="OpenAI model for lower analysis (default gpt-5-nano)",
+        help="OpenAI model for lower analysis (default: value of --model/DEFAULT_MODEL)"
     )
     parser.add_argument(
         "--model-medium",
         default=DEFAULT_MODEL,
-        help="OpenAI model for medium analysis (default gpt-5-nano)",
+        help="OpenAI model for medium analysis (default: value of --model/DEFAULT_MODEL)"
     )
     parser.add_argument(
-        "--window-label",
+        "--window-label", 
         default="the last 90 days",
         help='Label for the time window (e.g. "May–July 2025")',
     )
@@ -460,7 +455,7 @@ def main():
         )
 
     # Emit one Markdown per repo
-    for (pid, pname, owner, repo) in repos:
+    for pid, pname, owner, repo in repos:
         # Extract README/description/homepage context for this repo
         ctx = extract_repo_context(tables, owner, repo)
 
@@ -496,7 +491,7 @@ def main():
                         "role": "system",
                         "content": (
                             f"You are a careful, evidence-bound summarizer that follows directions exactly."
-                            f"You take information from a repository (code and activity) and summarize it into a cohesive and succint excecutive summary, "
+                            f"You take information from a repository (code and activity) and summarize it into a cohesive and succinct excecutive summary, "
                             f"highlighting key themes in issues, pull requests, users, etc. "
                             f"You are very observant and are able to take multiple issues, pull requests, etc. "
                             "and identify general trends of 'what work has been done' and 'what key issues or work pop up consistenly'. "
