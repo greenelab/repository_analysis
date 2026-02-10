@@ -298,7 +298,7 @@ STRICT RULES
 - Do not under any circumstance name any pull request, commit or issue by name (i.e., pull request 1, commit 70bcd7e6, etc.)
 - Do not let a single repository dominate the narrative; integrate themes spanning multiple repos.
 - Do not add a link without it being hyperlinked under any circumstance.
-- This is how to include incline links:
+- This is how to include inline links:
 EXAMPLE 1:
 GOOD: A [consolidating pull request]((https://github.com/ivichadriana/deconvolution_sc_sn_comparison/pull/1)) further structured these changes.
 BAD: A consolidating pull request further structured these changes, as seen in [pull request #1](https://github.com/ivichadriana/deconvolution_sc_sn_comparison/pull/1).

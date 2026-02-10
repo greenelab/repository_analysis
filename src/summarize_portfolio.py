@@ -595,7 +595,7 @@ def main():
                 "role": "system",
                 "content": (
                     f"You are a careful, evidence-bound summarizer that follows directions exactly."
-                    f"You take information from multiple projects and summarize it into a cohesive and succint excecutive summary, highlighting key themes. "
+                    f"You take information from multiple projects and summarize it into a cohesive and succint executive summary, highlighting key themes. "
                     f"Your summaries on the project's activity highlight the overall scope of the work done and the work progress. "
                     f"You are very observant and are able to take multiple project's progress and identify general trends of 'what work has been done across all projects'. "
                     f"Use ONLY the information in the user message; no external knowledge. "
