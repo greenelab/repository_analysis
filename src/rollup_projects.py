@@ -39,6 +39,54 @@ def _clean_text(v) -> str | None:
     s = v.strip()
     return s if s else None
 
+def _clean_topic_list(val) -> list[str]:
+    """
+    Normalize topic values into a clean list of strings.
+
+    Accepts:
+      - None / NaN / pd.NA  -> []
+      - list/tuple/set      -> [cleaned strings]
+      - string              -> split on commas, cleaned
+      - anything else       -> []
+
+    Returns:
+      - list of unique, stripped, non-empty topic strings (order preserved)
+    """
+    # Handle None/NaN/pd.NA safely
+    if val is None:
+        return []
+    try:
+        if pd.isna(val):
+            return []
+    except Exception:
+        pass
+
+    # Convert to a list of raw tokens
+    if isinstance(val, (list, tuple, set)):
+        tokens = list(val)
+    elif isinstance(val, str):
+        # repo_topics is stored as "a,b,c" in normalize_activity.py
+        tokens = val.split(",")
+    else:
+        return []
+
+    # Clean + dedupe while preserving order
+    out = []
+    seen = set()
+    for t in tokens:
+        if not isinstance(t, str):
+            continue
+        s = t.strip()
+        if not s:
+            continue
+        if s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+
+    return out
+
+
 def _jsonable(v):
     """Convert pandas/NumPy/time values to JSON-safe Python types/strings."""
     # pandas/pyarrow timestamps -> ISO8601 (UTC)
@@ -177,11 +225,6 @@ def _extract_single_repo_fields(
         "readme": None,
     }
 
-    def _split_csv(val):
-        if val is None or (isinstance(val, float) and pd.isna(val)):
-            return []
-        return [x.strip() for x in str(val).split(",") if x.strip()]
-
     # Try to find a row for this repo in any table (prefer one with readme_text)
     tables = [
         "commits",
@@ -211,7 +254,7 @@ def _extract_single_repo_fields(
     if best is not None:
         fields["description"] = _clean_text(best.get("repo_description"))
         fields["homepage"] = _clean_text(best.get("repo_homepage"))
-        fields["topics"] = _split_csv(best.get("repo_topics"))
+        fields["topics"] = _clean_topic_list(best.get("repo_topics"))
         fields["readme"] = _clean_text(best.get("readme_text"))
         # early return if we already have a README
         if fields["readme"]:
