@@ -274,6 +274,8 @@ def _extract_single_repo_fields(
             ]
         except Exception:
             pass
+        topics = _clean_topic_list(topics)
+
 
         fields["description"] = fields["description"] or _clean_text(raw.get("description"))
         fields["homepage"] = fields["homepage"] or _clean_text(raw.get("homepageUrl"))
