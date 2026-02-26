@@ -514,7 +514,7 @@ def main():
         md = title + "\n\n" + summary + _footer() + "\n"
 
         # reports/<PROJECT_ID>__<owner>__<repo>.md
-        out_path = os.path.join(args.out_dir, f"{pid}__{owner}__{repo}.md")
+        out_path = os.path.join(args.out_dir, f"{pid}__{owner}__{repo}__chatbased.md")
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(md)
         print(f"Wrote {out_path}")
