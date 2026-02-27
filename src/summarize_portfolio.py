@@ -50,7 +50,7 @@ def _read_project_activity_from_md(project_id: str, window_label: str) -> str | 
     Read reports/<PROJECT_ID>.md and extract the '## Recent Developments (<window_label>)' block.
     Returns stripped text or None.
     """
-    path = os.path.join(REPORTS_DIR, f"{project_id}.md")
+    path = os.path.join(REPORTS_DIR, f"{project_id}__chatbased.md")
     if not os.path.exists(path):
         return None
     with open(path, "r", encoding="utf-8") as f:
@@ -102,7 +102,7 @@ def _goal_from_project_md(project_id: str) -> str | None:
     Fallback: read 'reports/<PROJECT_ID>.md' and extract the text under '## Goal'
     up to the next '## ' or end-of-file. Returns stripped text or None.
     """
-    md_path = os.path.join(REPORTS_DIR, f"{project_id}.md")
+    md_path = os.path.join(REPORTS_DIR, f"{project_id}__chatbased.md")
     if not os.path.exists(md_path):
         return None
     with open(md_path, "r", encoding="utf-8") as f:
@@ -312,7 +312,7 @@ def _collect_project_goal(project_id: str) -> str | None:
     Read reports/<PROJECT_ID>.md and extract its ## Goal text.
     Returns a single string or None if missing.
     """
-    path = os.path.join(REPORTS_DIR, f"{project_id}.md")
+    path = os.path.join(REPORTS_DIR, f"{project_id}__chatbased.md")
     if not os.path.exists(path):
         return None
     try:
@@ -336,7 +336,7 @@ def _collect_repo_goals_for_project(project_id: str) -> list[str]:
         if not (fname.startswith(prefix) and fname.endswith(".md")):
             continue
         # Skip the project-level file (`reports/<PROJECT_ID>.md`)
-        if fname == f"{project_id}.md":
+        if fname == f"{project_id}__chatbased.md":
             continue
         path = os.path.join(REPORTS_DIR, fname)
         try:
@@ -562,8 +562,8 @@ def main():
     )
     parser.add_argument(
         "--out",
-        default=os.path.join(REPORTS_DIR, "_portfolio_full.md"),
-        help="Output Markdown path (default: reports/_portfolio_full.md)",
+        default=os.path.join(REPORTS_DIR, "_portfolio_full__chatbased.md"),
+        help="Output Markdown path (default: reports/_portfolio_full_chatbased.md)",
     )
     args = parser.parse_args()
 

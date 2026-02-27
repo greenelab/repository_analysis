@@ -478,14 +478,11 @@ def _doc_type_and_keys(md_path: pathlib.Path) -> dict:
     if stem.startswith("_portfolio"):
         return {"type": "portfolio"}
     parts = stem.split("__")
-    if len(parts) == 3:
-        return {
-            "type": "repo",
-            "project_id": parts[0],
-            "owner": parts[1],
-            "repo": parts[2],
-        }
-    return {"type": "project", "project_id": stem}
+    if len(parts) == 4 and parts[3] == "chatbased":
+        return {"type": "repo", "project_id": parts[0], "owner": parts[1], "repo": parts[2]}
+    if len(parts) == 2 and parts[1] == "chatbased":
+        return {"type": "project", "project_id": parts[0]}
+    return {"type": "portfolio"}
 
 
 def _parse_counts_from_title(md_text: str) -> dict:
@@ -515,12 +512,12 @@ def _plural(n: int, singular: str, plural: str) -> str:
 
 def _count_repo_files(in_dir: pathlib.Path) -> int:
     """Count repo-level MDs: '<project_id>__<owner>__<repo>.md'"""
-    return sum(1 for p in in_dir.glob("*__*__*.md"))
+    return sum(1 for p in in_dir.glob("*__*__*__chatbased.md"))
 
 
 def _count_project_repos(in_dir: pathlib.Path, project_id: str) -> int:
     """Count repo MDs for a given project prefix."""
-    return sum(1 for p in in_dir.glob(f"{project_id}__*__*.md"))
+    return sum(1 for p in in_dir.glob(f"{project_id}__*__*__chatbased.md"))
 
 
 def _read_project_title(project_id: str, in_dir: pathlib.Path) -> str:
@@ -528,7 +525,7 @@ def _read_project_title(project_id: str, in_dir: pathlib.Path) -> str:
     Read <project_id>.md (if present) and extract its H1 as a human title,
     stripping 'Executive Summary:' and any trailing counts. Fallback to project_id.
     """
-    md = in_dir / f"{project_id}.md"
+    md = in_dir / f"{project_id}__chatbased.md"
     if not md.exists():
         return project_id
     text = md.read_text(encoding="utf-8")
@@ -553,7 +550,7 @@ def _read_project_title(project_id: str, in_dir: pathlib.Path) -> str:
 def _project_repo_paths(in_dir: pathlib.Path, project_id: str) -> list[pathlib.Path]:
     """All repo-level MDs for a project, sorted by owner/repo in filename."""
     repo_paths = sorted(
-        in_dir.glob(f"{project_id}__*__*.md"), key=lambda p: p.stem.lower()
+        in_dir.glob(f"{project_id}__*__*__chatbased.md"), key=lambda p: p.stem.lower()
     )
     return repo_paths
 
@@ -567,7 +564,7 @@ def _repo_position_in_project(
     """
     items = _project_repo_paths(in_dir, project_id)
     total = len(items)
-    target_stem = f"{project_id}__{owner}__{repo}"
+    target_stem = f"{project_id}__{owner}__{repo}__chatbased"  
     try:
         pos = [p.stem for p in items].index(target_stem) + 1
     except ValueError:

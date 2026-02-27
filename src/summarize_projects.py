@@ -40,7 +40,7 @@ _ACTIVITY_RE = re.compile(
 
 # -------- Small helpers --------
 def _read_repo_activity_from_md(project_id: str, owner: str, repo: str) -> str | None:
-    path = os.path.join(REPORTS_DIR, f"{project_id}__{owner}__{repo}.md")
+    path = os.path.join(REPORTS_DIR, f"{project_id}__{owner}__{repo}__chatbased.md")
     if not os.path.exists(path):
         return None
     with open(path, "r", encoding="utf-8") as f:
@@ -64,7 +64,7 @@ def _footer():
 
 
 def _read_repo_goal_from_md(project_id: str, owner: str, repo: str) -> str | None:
-    path = os.path.join(REPORTS_DIR, f"{project_id}__{owner}__{repo}.md")
+    path = os.path.join(REPORTS_DIR, f"{project_id}__{owner}__{repo}__chatbased.md")
     if not os.path.exists(path):
         return None
     text = open(path, "r", encoding="utf-8").read()
@@ -107,10 +107,9 @@ def build_project_goal_corpus_from_repo_mds(
     # 2) Fallback: scan reports for any repo files that match this project id
     if not parts:
         # Fallback: scan and label explicitly
-        for path in sorted(glob.glob(os.path.join(REPORTS_DIR, f"{pid}__*__*.md"))):
-            # filename pattern: <pid>__<owner>__<repo>.md
+        for path in sorted(glob.glob(os.path.join(REPORTS_DIR, f"{pid}__*__*__chatbased.md"))):
             m = re.match(
-                rf"^{re.escape(pid)}__([^_]+)__(.+)\.md$", os.path.basename(path)
+                rf"^{re.escape(pid)}__([^_]+)__(.+)__chatbased\.md$", os.path.basename(path)
             )
             if not m:
                 continue
@@ -142,9 +141,9 @@ def build_project_activity_corpus_from_repo_mds(
         ]
     else:
         candidates = []
-        for path in sorted(glob.glob(os.path.join(REPORTS_DIR, f"{pid}__*__*.md"))):
+        for path in sorted(glob.glob(os.path.join(REPORTS_DIR, f"{pid}__*__*__chatbased.md"))):
             m = re.match(
-                rf"^{re.escape(pid)}__([^_]+)__(.+)\.md$", os.path.basename(path)
+                rf"^{re.escape(pid)}__([^_]+)__(.+)__chatbased\.md$", os.path.basename(path)
             )
             if m:
                 candidates.append((m.group(1), m.group(2)))
@@ -356,7 +355,7 @@ FORKS (identity signals): {", ".join(fk_k) if fk_k else "(none)"}
 def write_report(
     project_id: str, project_name: str, repo_count: int, window_label: str, body_md: str
 ):
-    path = os.path.join(REPORTS_DIR, f"{project_id}.md")
+    path = os.path.join(REPORTS_DIR, f"{project_id}__chatbased.md")
     title = f"# Executive Summary: Project {project_name or project_id} — {repo_count} repositories — {window_label}"
     with open(path, "w", encoding="utf-8") as f:
         f.write(title + "\n\n" + body_md.strip() + _footer() + "\n")
