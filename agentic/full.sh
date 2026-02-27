@@ -94,10 +94,3 @@ if [ ! -f "${ANALYSIS_CSV}" ]; then
   echo "pipeline,run_date,duration_seconds,duration_human" > "${ANALYSIS_CSV}"
 fi
 echo "agentbased,$(date +%Y-%m-%d),${ELAPSED},${MINUTES}m ${SECONDS}s" >> "${ANALYSIS_CSV}"
-```
-
-This way every run appends a row to `data/analysis.csv` so you accumulate timing data across multiple runs. The file will look like:
-```
-pipeline,run_date,duration_seconds,duration_human
-chatbased,2026-02-26,1823,30m 23s
-agentbased,2026-02-26,2541,42m 21s
