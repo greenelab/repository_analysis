@@ -29,10 +29,8 @@ Both pipelines share the same `.env` file. Use `.env_example` as a template.
 The agentic pipeline uses GitHub Copilot CLI, which must be authenticated with your GitHub account before running. This only needs to be done once on your local machine.
 ```bash
 # Install Copilot CLI locally if you haven't already
-npm install -g @githubnext/github-copilot-cli
+npm install -g @github/copilot
 
-# Authenticate — this saves credentials to ~/.config/github-copilot/
-copilot auth
 ```
 
 Follow the prompts to log in with your GitHub account. You need an active GitHub Copilot subscription. Once authenticated, the Docker run command mounts these credentials into the container so Copilot can identify you without re-authenticating.
