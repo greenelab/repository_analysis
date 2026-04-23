@@ -122,3 +122,8 @@ Gathers all project-level `_agentbased.md` files into a working directory and ru
 
 **8) `src/make_pdfs.py`**
 Converts all Markdown reports in `reports/` to styled PDFs saved in `reports_pdf/`. Each pipeline's outputs are named with their respective suffix so both sets can coexist.
+
+### **Optional: For final plots for comparison:**
+```bash
+python analyze_reports.py --reports-dir ./reports --out-dir ./plots
+```
